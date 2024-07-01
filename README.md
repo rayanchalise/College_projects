@@ -1,6 +1,5 @@
-# College_projects
-This repo is for "python for hacker" projects 
+# Random Personal TOlls collection
+Learning Security..............................)
 -----------------------------------------------
 
-Hey i am a cyber security enthusiast from Nepal. I recently started making small programs and i want make a decent collection of programs and acquire some level
-of decent knownledge of python .
+Hey i am a cyber security enthusiast from Nepal. I recently started making small programs and i want make a decent collection of programs and acquire some level of decent knownledge in python tools development.
