@@ -2,13 +2,11 @@ import sys
 import concurrent.futures
 from urllib.parse import urlparse
 
-# Function to check if URL is interesting based on criteria
 def is_interesting_url(url):
     parsed_url = urlparse(url)
     path = parsed_url.path.lower()
     query = parsed_url.query.lower()
 
-    # Define criteria for interesting URLs
     interesting_paths = ['/admin', '/login', '/dashboard', '/wp-admin', '/wp-login.php',
                          '/administrator', '/user', '/profile', '/config', '/backup',
                          '/test', '/phpinfo.php', '/info.php', '/setup', '/install',
@@ -56,20 +54,16 @@ def is_interesting_url(url):
         return True
     if any(param in query for param in interesting_params):
         return True
-    # Additional checks can be added based on specific needs
 
     return False
 
-# Function to filter URLs and output interesting ones
 def filter_interesting_urls(input_file, output_file):
     interesting_urls = []
 
     with open(input_file, 'r') as f:
         urls = f.readlines()
 
-    # Process each URL concurrently using ThreadPoolExecutor
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Submit URL filtering tasks
         future_to_url = {executor.submit(is_interesting_url, url.strip()): url for url in urls}
         
         for future in concurrent.futures.as_completed(future_to_url):
@@ -80,17 +74,15 @@ def filter_interesting_urls(input_file, output_file):
             except Exception as e:
                 print(f"Error processing {url}: {e}")
 
-    # Write interesting URLs to output file
     with open(output_file, 'w') as f:
         for url in interesting_urls:
             f.write(url + '\n')
 
     print(f"Filtered {len(interesting_urls)} interesting URLs. Output saved to {output_file}")
 
-# Example usage:
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python filter_wayback_output.py input_file.txt output_file.txt")
+        print("Usage: python Wayintresting.py input_file.txt output_file.txt OR echo 'https://website.com?=' | python3 Wayintresting.py output.txt")
         sys.exit(1)
 
     input_file = sys.argv[1]
