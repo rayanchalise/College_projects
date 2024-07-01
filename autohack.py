@@ -5,6 +5,7 @@ from urllib.parse import quote, urlparse, parse_qs
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
+import sys
 import base64
 import os
 import re
