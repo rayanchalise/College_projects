@@ -115,10 +115,3 @@ Make sure that the Tor control port is listening on `127.0.0.1:9051` (default).
 
 This tool is for educational and research purposes only. The developers are not responsible for any misuse or damage caused by this tool. Ensure you have permission before scanning any domains.
 
-## License
-
-This project is licensed under the MIT License. Feel free to modify and distribute this tool according to the terms of the license.
-
----
-
-This README provides all essential details for someone visiting your GitHub repository, including how to install, use, and understand the tool.
